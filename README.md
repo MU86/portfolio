@@ -1,4 +1,4 @@
-# pixel-portfolio
+# Mason Um — portfolio
 
 A personal portfolio with a pixel-art avatar on the left and a Gemini-powered chat interface on the right. Built with Next.js 14 (App Router) and TypeScript.
 
@@ -9,7 +9,7 @@ A personal portfolio with a pixel-art avatar on the left and a Gemini-powered ch
 - **Left panel** — a hand-authored 16×24 pixel sprite of "you," animated with idle-breathing and occasional blinks. Pure SVG, no image assets, rendered crisp-edges.
 - **Right panel** — a terminal-styled chat UI that talks to Gemini via a server route. Maintains conversation history, shows a typing indicator, and includes suggestion chips for first-time visitors.
 - **Aesthetic** — retro-CRT: phosphor green on deep charcoal, scanlines, subtle grain, VT323 + Press Start 2P + JetBrains Mono.
-
+     
 ## setup
 
 ```bash
