@@ -205,6 +205,21 @@ export default function Chat({
         </div>
       )}
 
+      {locked && (
+        <div className="lock-hint">
+          chat is password-protected. don&apos;t have it?{" "}
+          <a href="mailto:masonum86@gmail.com">email mason</a> or{" "}
+          <a
+            href="https://www.linkedin.com/in/mason-u"
+            target="_blank"
+            rel="noreferrer"
+          >
+            message on linkedin
+          </a>{" "}
+          to ask.
+        </div>
+      )}
+
       {locked ? (
         <form className="input-row lock-row" onSubmit={unlock}>
           <span className="lock-icon" aria-hidden>
