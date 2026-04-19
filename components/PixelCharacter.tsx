@@ -14,13 +14,13 @@ const PALETTE: Record<number, string> = {
   3: "#c99777", // skin shadow
   4: "#2a1f1a", // hair
   5: "#4a3428", // hair highlight
-  6: "#1c1b18", // vest dark
-  7: "#2a2925", // vest highlight
-  8: "#1f1d1a", // pants
-  9: "#141311", // pants shadow
-  10: "#1c1b18", // unused (kept so legacy refs stay valid)
+  6: "#5b6a4d", // sweater olive
+  7: "#3f4a36", // sweater shadow
+  8: "#3a3026", // chinos warm dark
+  9: "#26201a", // chinos shadow
+  10: "#5b6a4d", // unused (kept so legacy refs stay valid)
   11: "#f3eee5", // shirt white / eye white
-  12: "#7a2e23", // tie maroon
+  12: "#5b6a4d", // unused (was tie)
 };
 
 // 16 wide x 24 tall. Frame A (idle), B (subtle breath), C (blink), S (smile).
@@ -41,13 +41,13 @@ const FRAME_A: number[][] = [
   // neck (rows 11-12)
   [0,0,0,4,2,2,2,2,2,2,2,2,4,0,0,0],
   [0,0,0,0,3,2,2,2,2,2,2,3,0,0,0,0],
-  // collar + vest (rows 13-18)
-  [0,0,6,6,11,11,11,11,11,11,11,11,6,6,0,0], // shoulders + white collar
-  [0,6,6,6,6,11,11,12,12,11,11,6,6,6,6,0],   // V-neck + tie knot
-  [0,6,7,6,6,6,7,12,12,7,6,6,6,7,6,0],       // vest + tie
-  [0,6,7,7,6,6,6,12,12,6,6,6,7,7,6,0],
-  [0,6,7,7,7,7,6,12,12,6,7,7,7,7,6,0],
-  [0,0,6,7,7,7,6,12,12,6,7,7,7,6,0,0],       // vest bottom
+  // sweater over collared shirt (rows 13-18)
+  [0,0,6,6,6,11,11,11,11,11,11,6,6,6,0,0],   // shoulders + white collar peek
+  [0,6,6,6,6,6,11,11,11,11,6,6,6,6,6,0],     // V-neck shows shirt
+  [0,6,7,6,6,6,6,11,11,6,6,6,6,7,6,0],
+  [0,6,7,6,6,6,6,6,6,6,6,6,6,7,6,0],         // sweater body
+  [0,6,7,7,6,6,6,6,6,6,6,6,7,7,6,0],
+  [0,0,6,7,7,7,6,6,6,6,7,7,7,6,0,0],         // sweater bottom hem
   // pants (rows 19-21)
   [0,0,8,8,8,8,8,8,8,8,8,8,8,8,0,0],
   [0,0,8,9,8,8,8,0,0,8,8,8,9,8,0,0],
