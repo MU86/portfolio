@@ -223,6 +223,15 @@ the virtual one so i can't actually reply, but he will.
 const MODEL = "gemini-2.5-flash";
 
 export async function POST(req: NextRequest) {
+  // Gate: only authenticated visitors can use the chat.
+  const auth = req.cookies.get("site_auth")?.value;
+  if (auth !== "ok") {
+    return NextResponse.json(
+      { error: "locked", code: "LOCKED" },
+      { status: 401 }
+    );
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(

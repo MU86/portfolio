@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PASSWORD = process.env.SITE_PASSWORD || "masonum";
 
+// GET — lightweight unlock check used by the Chat component on mount.
+export async function GET(req: NextRequest) {
+  const auth = req.cookies.get("site_auth")?.value;
+  return NextResponse.json({ unlocked: auth === "ok" });
+}
+
 export async function POST(req: NextRequest) {
   let body: { password?: string };
   try {
