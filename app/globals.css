@@ -178,6 +178,32 @@ body {
 }
 .stat-readout .v { color: var(--ink); font-size: 13px; }
 
+.reach-btns {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  padding: 6px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.link-btn:hover {
+  background: var(--bg-soft);
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+
 /* ---------- Right panel: chat ---------- */
 .right-panel {
   position: relative;

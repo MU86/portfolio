@@ -31,7 +31,13 @@ export default function Home() {
         <div className="stat-readout">
           <div><span className="k">focus</span><span className="v">Rubin NPI</span></div>
           <div><span className="k">based</span><span className="v">Mountain View</span></div>
-          <div><span className="k">reach</span><span className="v"><a href="mailto:masonum86@gmail.com">email</a> · <a href="https://www.linkedin.com/in/mason-u" target="_blank" rel="noreferrer">linkedin</a></span></div>
+          <div className="reach-cell">
+            <span className="k">reach</span>
+            <span className="v reach-btns">
+              <a className="link-btn" href="mailto:masonum86@gmail.com">email</a>
+              <a className="link-btn" href="https://www.linkedin.com/in/mason-u" target="_blank" rel="noreferrer">linkedin</a>
+            </span>
+          </div>
         </div>
       </section>
 
