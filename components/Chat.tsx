@@ -235,12 +235,25 @@ export default function Chat({
 
   return (
     <div className="right-panel">
-      <div
-        className="cost-badge"
-        title={`gemini ${MODEL_LABEL} · ${totalTokens.toLocaleString()} tokens this session`}
-      >
-        <span className="cost-k">cost</span>
-        <span className="cost-v">{costLabel}</span>
+      <div className="cost-badge" tabIndex={0}>
+        <span className="cost-pill">
+          <span className="cost-k">cost</span>
+          <span className="cost-v">{costLabel}</span>
+        </span>
+        <div className="cost-popover" role="tooltip">
+          <div className="cost-pop-title">real-mason's tab so far</div>
+          <div className="cost-pop-body">
+            this is what this convo has actually cost real-mason in gemini api
+            tokens — about{" "}
+            <strong>{totalTokens.toLocaleString()}</strong> tokens on{" "}
+            {MODEL_LABEL}.
+          </div>
+          <div className="cost-pop-body">
+            don&apos;t worry about it though, chat all you want :) if you want
+            to make it up to him, come find real-me in person and buy him a
+            boba 🧋
+          </div>
+        </div>
       </div>
       <div className="chat-log" ref={logRef}>
         {messages.map((m, i) => {
