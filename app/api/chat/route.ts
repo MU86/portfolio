@@ -294,35 +294,53 @@ export async function POST(req: NextRequest) {
       console.warn("[gemini] non-STOP finishReason:", finishReason);
     }
 
-    // Generate up to 3 contextual follow-up suggestions, but ONLY if the
-    // conversation is still on career/work/professional topics. If the
-    // conversation has drifted (hobbies, weather, jokes, etc.), return [].
+    // Generate 3 career-oriented follow-up question chips. Default to a
+    // sensible career-relevant fallback set if anything goes wrong, so the
+    // visitor always sees chips after a reply (unless we explicitly bail
+    // because the topic is off-limits).
+    const FALLBACK_SUGGESTIONS = [
+      "what's a typical week look like?",
+      "how'd you get into TPM work?",
+      "what makes a great TPM?",
+    ];
+
     let suggestions: string[] = [];
     try {
       const suggestModel = genAI.getGenerativeModel({
         model: MODEL,
         generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 200,
+          temperature: 0.8,
+          maxOutputTokens: 400,
           responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              suggestions: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+            required: ["suggestions"],
+          } as any,
         },
       });
+
       const transcriptForSuggest = [
         ...messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`),
         `ASSISTANT: ${reply}`,
       ].join("\n");
 
-      const suggestPrompt = `You are generating short follow-up question chips for a visitor chatting with a virtual version of Mason Um (a Technical Program Manager at NVIDIA working on Data Center GPU NPI).
+      const suggestPrompt = `Generate 3 short follow-up question chips for a visitor chatting with virtual-Mason (a Technical Program Manager at NVIDIA working on Data Center GPU NPI). The visitor will tap a chip to ask the next question.
+
+Output format: { "suggestions": ["q1", "q2", "q3"] }
 
 Rules:
-- Return ONLY valid JSON: { "suggestions": ["...", "...", "..."] }
-- Generate up to 3 short questions (max ~7 words each, lowercase, casual).
-- The questions MUST be relevant to Mason's CAREER, WORK, BACKGROUND, INDUSTRY (hardware/semis/NPI/program management), how he got there, what he does day-to-day, advice for breaking in, etc.
-- Build on the most recent assistant reply — natural follow-ups, not random.
-- If the conversation has drifted off career topics (e.g. hobbies, jokes, personal trivia, weather, world events), return { "suggestions": [] }.
-- NEVER suggest questions about politics, elections, ideology, violence, weapons, NSFW/sexual topics, drugs, dating, gossip about real people, or anything work-inappropriate. If you can't think of safe career-relevant follow-ups, return { "suggestions": [] }.
+- ALWAYS return exactly 3 suggestions unless the topic is explicitly banned (politics, violence, NSFW, drugs, slurs, gossip). Do NOT return an empty array just because the conversation isn't strictly on-topic — generate career-relevant follow-ups that gently steer back.
+- Each suggestion: lowercase, casual, max ~8 words, no leading punctuation.
+- Career-oriented topics: Mason's day-to-day work, NVIDIA, hardware / semis / NPI / program management, his career path (Wisconsin ISyE → Microsoft intern → 4yrs GCM at NVIDIA → TPM on Rubin GPU eng ops), advice for breaking into hardware/TPM roles, what he learned, what surprised him, opinions on the industry, the tools he uses, etc.
+- Build on the most recent assistant reply — natural follow-ups.
 - Do NOT repeat questions the visitor has already asked.
-- Do not include leading punctuation, numbering, or quotes inside the strings.
+- If the conversation hit a banned topic (politics/violence/NSFW/etc), return { "suggestions": [] }.
 
 Conversation so far:
 ${transcriptForSuggest}
@@ -330,18 +348,36 @@ ${transcriptForSuggest}
 Return JSON now.`;
 
       const sugResult = await suggestModel.generateContent(suggestPrompt);
-      const raw = sugResult.response.text();
+      let raw = sugResult.response.text() || "";
+
+      // Strip possible markdown code fences (```json ... ```)
+      raw = raw.trim();
+      if (raw.startsWith("```")) {
+        raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "");
+      }
+      // If the model preceded JSON with prose, grab the first {...} block
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (jsonMatch) raw = jsonMatch[0];
+
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed?.suggestions)) {
         suggestions = parsed.suggestions
           .filter((s: unknown) => typeof s === "string" && s.trim().length > 0)
           .slice(0, 3)
-          .map((s: string) => s.trim());
+          .map((s: string) => s.trim().replace(/^["'\-•\d.\s]+/, ""));
       }
     } catch (e) {
       console.error("[gemini] suggestion gen failed:", e);
-      // Soft-fail: just return no suggestions.
-      suggestions = [];
+      // Soft-fail: fall through to fallback below.
+    }
+
+    // If the model gave us nothing AND the reply doesn't look like a refusal,
+    // fall back to a generic career-relevant set so chips still show up.
+    const looksLikeRefusal = /pass on that|sit that one out|not really my lane|keeping this professional/i.test(
+      reply
+    );
+    if (suggestions.length === 0 && !looksLikeRefusal) {
+      suggestions = FALLBACK_SUGGESTIONS;
     }
 
     return NextResponse.json({ reply, suggestions });
