@@ -201,22 +201,48 @@ export default function Chat({
   return (
     <div className="right-panel">
       <div className="chat-log" ref={logRef}>
-        {messages.map((m, i) => (
-          <div key={i} className={`msg ${m.role}`}>
-            <div className="msg-tag">
-              {m.role === "assistant" ? "// virtual-me" : "// you"}
+        {messages.map((m, i) => {
+          const prev = messages[i - 1];
+          const showHeader = m.role === "assistant" && prev?.role !== "assistant";
+          return (
+            <div key={i} className={`msg-row ${m.role}`}>
+              {m.role === "assistant" && (
+                <div className="avatar-slot">
+                  {showHeader && (
+                    <img
+                      src="/avatar.svg"
+                      alt="virtual mason"
+                      className="avatar"
+                    />
+                  )}
+                </div>
+              )}
+              <div className={`msg ${m.role}`}>
+                {showHeader && <div className="msg-name">virtual mason</div>}
+                <div className="msg-bubble">{m.content}</div>
+              </div>
             </div>
-            <div className="msg-body">{m.content}</div>
-          </div>
-        ))}
+          );
+        })}
 
         {loading && (
-          <div className="msg assistant">
-            <div className="msg-tag">// virtual-me</div>
-            <div className="typing" aria-label="thinking">
-              <span />
-              <span />
-              <span />
+          <div className="msg-row assistant">
+            <div className="avatar-slot">
+              <img
+                src="/avatar.svg"
+                alt="virtual mason"
+                className="avatar"
+              />
+            </div>
+            <div className="msg assistant">
+              <div className="msg-name">virtual mason</div>
+              <div className="msg-bubble">
+                <div className="typing" aria-label="thinking">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -14,7 +14,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000)",
-      "Bash(lsof -ti:3000)"
+      "Bash(lsof -ti:3000)",
+      "Bash(npx tsc *)"
     ]
   }
 }
