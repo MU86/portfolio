@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, FormEvent } from "react";
 
 type Message = { role: "user" | "assistant"; content: string };
 
-const SUGGESTIONS = [
+const INITIAL_SUGGESTIONS = [
   "what do you do at nvidia?",
   "what's rubin?",
   "how'd you get into TPM work?",
@@ -25,6 +25,7 @@ export default function Chat({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>(INITIAL_SUGGESTIONS);
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,6 +49,7 @@ export default function Chat({
     setInput("");
     setLoading(true);
     setError(null);
+    setSuggestions([]); // hide chips while we wait for the next batch
 
     try {
       const res = await fetch("/api/chat", {
@@ -65,8 +67,14 @@ export default function Chat({
 
       const data = await res.json();
       const reply = (data.reply || "").toString();
+      const nextSuggestions = Array.isArray(data.suggestions)
+        ? data.suggestions.filter(
+            (s: unknown) => typeof s === "string" && s.trim().length > 0
+          )
+        : [];
 
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      setSuggestions(nextSuggestions);
       onAssistantReply?.();
     } catch (e: any) {
       setError(e.message || "something broke. check the console.");
@@ -107,9 +115,9 @@ export default function Chat({
         {error && <div className="err">! {error}</div>}
       </div>
 
-      {messages.length <= 1 && !loading && (
+      {suggestions.length > 0 && !loading && (
         <div className="suggestions">
-          {SUGGESTIONS.map((s) => (
+          {suggestions.map((s) => (
             <button
               key={s}
               className="chip"

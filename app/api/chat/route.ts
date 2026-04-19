@@ -143,7 +143,56 @@ export async function POST(req: NextRequest) {
     const result = await chat.sendMessage(latest.content);
     const reply = result.response.text();
 
-    return NextResponse.json({ reply });
+    // Generate up to 3 contextual follow-up suggestions, but ONLY if the
+    // conversation is still on career/work/professional topics. If the
+    // conversation has drifted (hobbies, weather, jokes, etc.), return [].
+    let suggestions: string[] = [];
+    try {
+      const suggestModel = genAI.getGenerativeModel({
+        model: MODEL,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 200,
+          responseMimeType: "application/json",
+        },
+      });
+      const transcriptForSuggest = [
+        ...messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`),
+        `ASSISTANT: ${reply}`,
+      ].join("\n");
+
+      const suggestPrompt = `You are generating short follow-up question chips for a visitor chatting with a virtual version of Mason Um (a Technical Program Manager at NVIDIA working on Data Center GPU NPI).
+
+Rules:
+- Return ONLY valid JSON: { "suggestions": ["...", "...", "..."] }
+- Generate up to 3 short questions (max ~7 words each, lowercase, casual).
+- The questions MUST be relevant to Mason's CAREER, WORK, BACKGROUND, INDUSTRY (hardware/semis/NPI/program management), how he got there, what he does day-to-day, advice for breaking in, etc.
+- Build on the most recent assistant reply — natural follow-ups, not random.
+- If the conversation has drifted off career topics (e.g. hobbies, jokes, personal trivia, weather, world events), return { "suggestions": [] }.
+- Do NOT repeat questions the visitor has already asked.
+- Do not include leading punctuation, numbering, or quotes inside the strings.
+
+Conversation so far:
+${transcriptForSuggest}
+
+Return JSON now.`;
+
+      const sugResult = await suggestModel.generateContent(suggestPrompt);
+      const raw = sugResult.response.text();
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.suggestions)) {
+        suggestions = parsed.suggestions
+          .filter((s: unknown) => typeof s === "string" && s.trim().length > 0)
+          .slice(0, 3)
+          .map((s: string) => s.trim());
+      }
+    } catch (e) {
+      console.error("[gemini] suggestion gen failed:", e);
+      // Soft-fail: just return no suggestions.
+      suggestions = [];
+    }
+
+    return NextResponse.json({ reply, suggestions });
   } catch (e: any) {
     console.error("[gemini] error:", e);
     return NextResponse.json(
