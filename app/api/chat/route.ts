@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
       systemInstruction: SYSTEM_PROMPT,
       generationConfig: {
         temperature: 0.8,
-        maxOutputTokens: 400,
+        maxOutputTokens: 1024,
         topP: 0.95,
       },
     });
@@ -167,6 +167,12 @@ export async function POST(req: NextRequest) {
     const chat = model.startChat({ history });
     const result = await chat.sendMessage(latest.content);
     const reply = result.response.text();
+
+    // Surface why generation stopped — helps catch silent truncation.
+    const finishReason = result.response.candidates?.[0]?.finishReason;
+    if (finishReason && finishReason !== "STOP") {
+      console.warn("[gemini] non-STOP finishReason:", finishReason);
+    }
 
     // Generate up to 3 contextual follow-up suggestions, but ONLY if the
     // conversation is still on career/work/professional topics. If the
