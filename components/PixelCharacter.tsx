@@ -76,24 +76,40 @@ const FRAME_S: number[][] = FRAME_A.map((row, y) => {
   return [...row];
 });
 
-// Wave frames — arm raised next to head with smile, hand swings side-to-side.
-// Built on top of the smile frame so the character grins while waving.
+// Wave frames — arm fully extended above shoulder, hand visibly swings
+// from left (toward head) to right (away from head). Built on the smile
+// frame so the character grins while waving.
+//
+// Layout:
+//   - Vertical arm sleeve in col 14 from row 3 down to the shoulder.
+//   - Shoulder bridge at row 12-13 (cols 13-14) so the arm connects to the body.
+//   - Hand (2x2 skin block) sits above the arm and swings between two
+//     positions to suggest the wrist motion of a real wave.
+
 const FRAME_WAVE_1: number[][] = FRAME_S.map((row, y) => {
   const r = [...row];
-  if (y === 4) { r[14] = 2; }                  // hand
-  if (y === 5) { r[14] = 2; }                  // hand
-  if (y >= 6 && y <= 11) { r[14] = 6; }        // sleeve / arm
-  if (y === 12) { r[12] = 6; r[13] = 6; }      // shoulder connection
-  if (y === 13) { r[14] = 6; }                 // arm meets body
+  // Hand swung LEFT (toward head) — fingertips at top-left
+  if (y === 0) { r[13] = 2; }
+  if (y === 1) { r[13] = 2; r[14] = 2; }
+  if (y === 2) { r[13] = 2; r[14] = 2; }
+  // Vertical arm sleeve
+  if (y >= 3 && y <= 11) { r[14] = 6; }
+  // Shoulder bridge
+  if (y === 12) { r[13] = 6; r[14] = 6; }
+  if (y === 13) { r[14] = 6; }
   return r;
 });
 
 const FRAME_WAVE_2: number[][] = FRAME_S.map((row, y) => {
   const r = [...row];
-  if (y === 4) { r[15] = 2; }                  // hand swung right
-  if (y === 5) { r[14] = 2; r[15] = 2; }       // hand
-  if (y >= 6 && y <= 11) { r[14] = 6; }        // sleeve / arm
-  if (y === 12) { r[12] = 6; r[13] = 6; }
+  // Hand swung RIGHT (away from head) — fingertips at top-right
+  if (y === 0) { r[15] = 2; }
+  if (y === 1) { r[14] = 2; r[15] = 2; }
+  if (y === 2) { r[14] = 2; r[15] = 2; }
+  // Vertical arm sleeve
+  if (y >= 3 && y <= 11) { r[14] = 6; }
+  // Shoulder bridge
+  if (y === 12) { r[13] = 6; r[14] = 6; }
   if (y === 13) { r[14] = 6; }
   return r;
 });
@@ -149,11 +165,11 @@ export default function PixelCharacter({
 
   // Initial wave on mount — alternates hand position, then stops.
   useEffect(() => {
-    const swing = setInterval(() => setWaveFrame((f) => 1 - f), 220);
+    const swing = setInterval(() => setWaveFrame((f) => 1 - f), 280);
     const stop = setTimeout(() => {
       setWaving(false);
       clearInterval(swing);
-    }, 2600);
+    }, 3000);
     return () => {
       clearInterval(swing);
       clearTimeout(stop);
