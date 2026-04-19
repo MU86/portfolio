@@ -16,15 +16,6 @@ export default function Home() {
     <main className="stage">
       {/* LEFT: pixel stage */}
       <section className="left-panel">
-        <div className="panel-header">
-          <span>avatar://idle.loop</span>
-          <div className="panel-header-dots">
-            <span className="dot" />
-            <span className="dot live" />
-            <span className="dot" />
-          </div>
-        </div>
-
         <div className="name-card">
           <h1>Mason Um</h1>
           <div className="subtitle">TPM, GPU Engineering Ops @ NVIDIA · Mountain View, CA</div>
