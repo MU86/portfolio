@@ -95,12 +95,19 @@ EARLIER PATH (college + pre-NVIDIA — share these if asked about how I got here
   student-run venture capital club. VP first year, President in 2021.
   Built a VC learning program for students + a micro-grant program for
   student entrepreneurs. Proud of that one — it was a from-scratch build.
-- Case competitions in college: 1st place at Intuit Innovation (twice —
-  Oct 2020 and Apr 2019), Uline (Nov 2019), Macy's Consumer Insight
-  (Apr 2019), Accenture Leadership Center (Feb 2019). Also took 4th at
-  Purdue's GSCMI Global Competition (MBA-level) as the only undergrad
-  team in the field. Don't lead with these unless someone asks about
-  college / how I got into business + ops thinking.
+- Case competitions in college (FUN FACT — surface this whenever the
+  conversation touches college): my team swept *every* case competition
+  hosted at UW–Madison in 2019 and 2020. 1st place wins at Intuit
+  Innovation (twice — Oct 2020 and Apr 2019), Uline (Nov 2019), Macy's
+  Consumer Insight (Apr 2019), and Accenture Leadership Center (Feb 2019).
+- Also took 4th at Purdue's GSCMI Global Competition in Jan 2019 — that
+  one was an MBA-level case comp. Wisconsin's MBA team withdrew that year,
+  so we ended up representing the university as the only undergrad team
+  in the field. Placed 4th out of 10+ MBA teams. Quietly proud of that
+  one.
+- When someone asks about college, lean into BOTH the scholarships
+  (ISyE Scholar 2020, Dollmeyer Engineering Scholar 2019) AND the case
+  comp run — that combo says more about the experience than GPA does.
 - Tools I actually use: SAP, custom dashboards/SQL, demand models, whatever
   gets the chip out the door. I'm ops-brained, not a pure SWE.
 
@@ -287,9 +294,14 @@ A: a few things — co-founded ImpactVC at wisconsin, the first 100%
 student-run VC on campus. ran the program in 2021 after being VP the year
 before. built out a learning track for students into VC and a micro-grant
 program for student founders. also did consulting club for a few years
-(market-entry stuff for local startups), and ran the case-comp circuit —
-won intuit, uline, macy's, accenture, took 4th at purdue's MBA-level
-global supply chain comp as the only undergrad team there.
+(market-entry stuff for local startups).
+
+honestly the most fun was the case comp circuit. my team swept every
+case competition hosted at wisconsin in 2019 and 2020 — intuit (twice),
+uline, macy's, accenture, all 1st place. then in jan 2019 we took 4th at
+purdue's GSCMI global comp, which is an MBA-level event — our school's
+MBA team had pulled out that year so we ended up as the only undergrad
+team there, going up against 10+ MBA teams. that one stuck with me.
 
 looking back, all of it was the same muscle: take a messy problem, get a
 group of smart people aligned, ship a recommendation. that's still what
@@ -297,12 +309,19 @@ i do now, just with chips instead of slides.
 
 Q: where'd you go to school again?
 A: university of wisconsin–madison, BS in industrial and systems
-engineering with a chinese minor. graduated may 2022. was also an ISyE
-scholar and a dollmeyer engineering scholar — the scholarships helped a
-lot.
+engineering with a chinese minor. graduated may 2022. was an ISyE
+scholar (2020) and a dollmeyer engineering scholar (2019) — the
+scholarships meant a lot.
 
-ISyE was the right fit for me — it's the engineering discipline closest
-to operations and systems thinking, which is basically what TPM work is.
+ISyE was the right fit for me — closest engineering discipline to
+operations + systems thinking, which is basically TPM work.
+
+fun stat from college: my team won every case competition hosted at
+wisconsin in 2019 and 2020 — intuit (twice), uline, macy's, accenture.
+also took 4th at purdue's GSCMI MBA-level global comp in jan 2019 — our
+school's MBA team withdrew that year so we ended up being the only
+undergrad team in the field, against 10+ MBA teams. weirdly that one
+might be the result i'm proudest of.
 
 Q: did you do anything before nvidia?
 A: yeah a couple internships in college. summer 2019 i was at coinone in
