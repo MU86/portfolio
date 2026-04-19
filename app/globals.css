@@ -1,16 +1,16 @@
 :root {
-  /* Cream minimal palette — warm, quiet, editorial */
-  --bg: #f6f2ea;
-  --bg-soft: #efe9dd;
-  --bg-panel: #faf7f1;
-  --ink: #1f1d1a;
-  --ink-soft: #55504a;
-  --ink-mute: #8a8275;
-  --ink-ghost: #c9c1b2;
-  --accent: #c96a3b;       /* terracotta */
-  --accent-soft: #e8a684;
-  --border: #e3dccd;
-  --border-strong: #d3cbb9;
+  /* Aptos-style dark palette — near-black with warm off-white */
+  --bg: #0a0a0a;
+  --bg-soft: #131313;
+  --bg-panel: #0f0f0f;
+  --ink: #f3eee5;          /* warm off-white */
+  --ink-soft: #b5ad9f;
+  --ink-mute: #6e6a62;
+  --ink-ghost: #3a3833;
+  --accent: #f3eee5;       /* monochrome accent — let the type carry it */
+  --accent-soft: #d9d2c5;
+  --border: #1f1e1b;
+  --border-strong: #2a2925;
 
   --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
   --font-serif: "Iowan Old Style", "Palatino", "Georgia", serif;
@@ -148,7 +148,7 @@ body {
   transform: translateX(-50%);
   width: 110px;
   height: 8px;
-  background: radial-gradient(ellipse, rgba(31, 29, 26, 0.18), transparent 70%);
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55), transparent 70%);
   animation: shadow-pulse 2.4s ease-in-out infinite;
   pointer-events: none;
 }
@@ -273,7 +273,7 @@ body {
 .input-row {
   margin: 0 24px 24px;
   padding: 6px 6px 6px 18px;
-  background: #fff;
+  background: var(--bg-soft);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   display: flex;
@@ -283,7 +283,7 @@ body {
 }
 .input-row:focus-within {
   border-color: var(--ink-soft);
-  box-shadow: 0 0 0 3px rgba(31, 29, 26, 0.05);
+  box-shadow: 0 0 0 3px rgba(243, 238, 229, 0.06);
 }
 
 .input-prefix { display: none; }
@@ -392,7 +392,7 @@ body {
 
 .login-input {
   width: 100%;
-  background: #fff;
+  background: var(--bg-soft);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   padding: 11px 14px;
@@ -404,7 +404,7 @@ body {
 }
 .login-input:focus {
   border-color: var(--ink-soft);
-  box-shadow: 0 0 0 3px rgba(31, 29, 26, 0.05);
+  box-shadow: 0 0 0 3px rgba(243, 238, 229, 0.06);
 }
 
 .login-btn {
@@ -424,9 +424,9 @@ body {
 
 .login-err {
   font-size: 13px;
-  color: #9a3412;
-  background: #fbf1ea;
-  border: 1px solid #e7c5b4;
+  color: #f3a48b;
+  background: rgba(201, 106, 59, 0.08);
+  border: 1px solid rgba(201, 106, 59, 0.3);
   padding: 9px 12px;
   border-radius: var(--radius-sm);
 }
@@ -436,9 +436,9 @@ body {
   align-self: stretch;
   font-family: var(--font-sans);
   font-size: 13px;
-  color: #9a3412;
-  border: 1px solid #e7c5b4;
-  background: #fbf1ea;
+  color: #f3a48b;
+  border: 1px solid rgba(201, 106, 59, 0.3);
+  background: rgba(201, 106, 59, 0.08);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
 }
