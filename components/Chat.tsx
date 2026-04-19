@@ -83,15 +83,6 @@ export default function Chat({
 
   return (
     <div className="right-panel">
-      <div className="panel-header">
-        <span>session://chat.live</span>
-        <div className="panel-header-dots">
-          <span className="dot live" />
-          <span className="dot" />
-          <span className="dot" />
-        </div>
-      </div>
-
       <div className="chat-log" ref={logRef}>
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
