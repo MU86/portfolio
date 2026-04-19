@@ -76,6 +76,28 @@ const FRAME_S: number[][] = FRAME_A.map((row, y) => {
   return [...row];
 });
 
+// Wave frames — arm raised next to head with smile, hand swings side-to-side.
+// Built on top of the smile frame so the character grins while waving.
+const FRAME_WAVE_1: number[][] = FRAME_S.map((row, y) => {
+  const r = [...row];
+  if (y === 4) { r[14] = 2; }                  // hand
+  if (y === 5) { r[14] = 2; }                  // hand
+  if (y >= 6 && y <= 11) { r[14] = 6; }        // sleeve / arm
+  if (y === 12) { r[12] = 6; r[13] = 6; }      // shoulder connection
+  if (y === 13) { r[14] = 6; }                 // arm meets body
+  return r;
+});
+
+const FRAME_WAVE_2: number[][] = FRAME_S.map((row, y) => {
+  const r = [...row];
+  if (y === 4) { r[15] = 2; }                  // hand swung right
+  if (y === 5) { r[14] = 2; r[15] = 2; }       // hand
+  if (y >= 6 && y <= 11) { r[14] = 6; }        // sleeve / arm
+  if (y === 12) { r[12] = 6; r[13] = 6; }
+  if (y === 13) { r[14] = 6; }
+  return r;
+});
+
 function renderFrame(frame: number[][], scale: number, key: string) {
   const rects: JSX.Element[] = [];
   for (let y = 0; y < frame.length; y++) {
@@ -106,7 +128,10 @@ export default function PixelCharacter({
   smiling?: boolean;
 }) {
   const [frameIdx, setFrameIdx] = useState(0);
+  const [waving, setWaving] = useState(true);
+  const [waveFrame, setWaveFrame] = useState(0);
 
+  // Idle loop (always running)
   useEffect(() => {
     let i = 0;
     const tick = () => {
@@ -122,7 +147,24 @@ export default function PixelCharacter({
     return () => clearInterval(id);
   }, []);
 
-  const frame = smiling
+  // Initial wave on mount — alternates hand position, then stops.
+  useEffect(() => {
+    const swing = setInterval(() => setWaveFrame((f) => 1 - f), 220);
+    const stop = setTimeout(() => {
+      setWaving(false);
+      clearInterval(swing);
+    }, 2600);
+    return () => {
+      clearInterval(swing);
+      clearTimeout(stop);
+    };
+  }, []);
+
+  const frame = waving
+    ? waveFrame === 0
+      ? FRAME_WAVE_1
+      : FRAME_WAVE_2
+    : smiling
     ? FRAME_S
     : frameIdx === 0
     ? FRAME_A
