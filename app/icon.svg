@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1.5 -0.5 13 14" shape-rendering="crispEdges">
+  <!-- Pixel face cropped from PixelCharacter FRAME_A (rows 0-12).
+       Palette: 1=#0d0c0a outline, 2=#f4c7a1 skin, 3=#c99777 skin shadow,
+                4=#2a1f1a hair, 5=#4a3428 hair highlight, 11=#f3eee5 eye white. -->
+
+  <!-- row 0: hair top -->
+  <g fill="#2a1f1a"><rect x="5" y="0" width="6" height="1"/></g>
+
+  <!-- row 1 -->
+  <g fill="#2a1f1a"><rect x="4" y="1" width="2" height="1"/><rect x="10" y="1" width="2" height="1"/></g>
+  <g fill="#4a3428"><rect x="6" y="1" width="4" height="1"/></g>
+
+  <!-- row 2 -->
+  <g fill="#2a1f1a"><rect x="3" y="2" width="2" height="1"/><rect x="11" y="2" width="2" height="1"/></g>
+  <g fill="#4a3428"><rect x="5" y="2" width="6" height="1"/></g>
+
+  <!-- rows 3,4,5 (hair body — same pattern) -->
+  <g fill="#2a1f1a">
+    <rect x="2" y="3" width="2" height="1"/><rect x="12" y="3" width="2" height="1"/>
+    <rect x="2" y="4" width="2" height="1"/><rect x="12" y="4" width="2" height="1"/>
+    <rect x="2" y="5" width="2" height="1"/><rect x="12" y="5" width="2" height="1"/>
+  </g>
+  <g fill="#4a3428">
+    <rect x="4" y="3" width="8" height="1"/>
+    <rect x="4" y="4" width="8" height="1"/>
+    <rect x="4" y="5" width="8" height="1"/>
+  </g>
+
+  <!-- row 6: forehead -->
+  <g fill="#0d0c0a"><rect x="2" y="6" width="1" height="1"/><rect x="13" y="6" width="1" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="3" y="6" width="10" height="1"/></g>
+
+  <!-- row 7: eyes -->
+  <g fill="#0d0c0a"><rect x="2" y="7" width="1" height="1"/><rect x="13" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="3" y="7" width="2" height="1"/><rect x="7" y="7" width="2" height="1"/><rect x="11" y="7" width="2" height="1"/></g>
+  <g fill="#f3eee5"><rect x="5" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/></g>
+
+  <!-- row 8: eyes (lower) -->
+  <g fill="#0d0c0a"><rect x="2" y="8" width="1" height="1"/><rect x="13" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="3" y="8" width="2" height="1"/><rect x="7" y="8" width="2" height="1"/><rect x="11" y="8" width="2" height="1"/></g>
+  <g fill="#f3eee5"><rect x="5" y="8" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/></g>
+
+  <!-- row 9: cheeks -->
+  <g fill="#0d0c0a"><rect x="2" y="9" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="3" y="9" width="10" height="1"/></g>
+
+  <!-- row 10: mouth -->
+  <g fill="#0d0c0a"><rect x="2" y="10" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="7" y="10" width="2" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="3" y="10" width="1" height="1"/><rect x="5" y="10" width="2" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="12" y="10" width="1" height="1"/></g>
+  <g fill="#c99777"><rect x="4" y="10" width="1" height="1"/><rect x="11" y="10" width="1" height="1"/></g>
+
+  <!-- row 11: chin / neck top -->
+  <g fill="#0d0c0a"><rect x="3" y="11" width="1" height="1"/><rect x="12" y="11" width="1" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="4" y="11" width="8" height="1"/></g>
+
+  <!-- row 12: neck -->
+  <g fill="#c99777"><rect x="4" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/></g>
+  <g fill="#f4c7a1"><rect x="5" y="12" width="6" height="1"/></g>
+</svg>
