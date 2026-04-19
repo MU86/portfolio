@@ -76,48 +76,6 @@ const FRAME_S: number[][] = FRAME_A.map((row, y) => {
   return [...row];
 });
 
-// Wave frames — open palm clearly visible (3px wide with thumb), wrist
-// tilts between two clear positions. Built on the smile frame so the
-// character grins while waving.
-//
-// Layout (above the head where there's room):
-//   - Hand: 3-pixel-wide palm with a thumb pixel for unmistakable silhouette
-//   - Wrist: tapers to a 2px column
-//   - Forearm: 1px sleeve in col 14 down to a shoulder bridge at row 12
-
-// Pose 1: palm tilted LEFT (toward head)
-const FRAME_WAVE_1: number[][] = FRAME_S.map((row, y) => {
-  const r = [...row];
-  // Fingertips
-  if (y === 0) { r[11] = 2; r[12] = 2; r[13] = 2; }
-  // Palm (3 wide) + thumb
-  if (y === 1) { r[12] = 2; r[13] = 2; r[14] = 2; }
-  // Wrist
-  if (y === 2) { r[13] = 2; r[14] = 2; }
-  // Forearm sleeve
-  if (y >= 3 && y <= 11) { r[14] = 6; }
-  // Shoulder bridge
-  if (y === 12) { r[13] = 6; r[14] = 6; }
-  if (y === 13) { r[14] = 6; }
-  return r;
-});
-
-// Pose 2: palm tilted RIGHT (away from head) — wrist swung the other way
-const FRAME_WAVE_2: number[][] = FRAME_S.map((row, y) => {
-  const r = [...row];
-  // Fingertips
-  if (y === 0) { r[13] = 2; r[14] = 2; r[15] = 2; }
-  // Palm (3 wide) + thumb
-  if (y === 1) { r[13] = 2; r[14] = 2; r[15] = 2; }
-  // Wrist
-  if (y === 2) { r[14] = 2; r[15] = 2; }
-  // Forearm sleeve
-  if (y >= 3 && y <= 11) { r[14] = 6; }
-  // Shoulder bridge
-  if (y === 12) { r[13] = 6; r[14] = 6; }
-  if (y === 13) { r[14] = 6; }
-  return r;
-});
 
 function renderFrame(frame: number[][], scale: number, key: string) {
   const rects: JSX.Element[] = [];
@@ -149,10 +107,7 @@ export default function PixelCharacter({
   smiling?: boolean;
 }) {
   const [frameIdx, setFrameIdx] = useState(0);
-  const [waving, setWaving] = useState(true);
-  const [waveFrame, setWaveFrame] = useState(0);
 
-  // Idle loop (always running)
   useEffect(() => {
     let i = 0;
     const tick = () => {
@@ -168,24 +123,7 @@ export default function PixelCharacter({
     return () => clearInterval(id);
   }, []);
 
-  // Initial wave on mount — alternates hand position, then stops.
-  useEffect(() => {
-    const swing = setInterval(() => setWaveFrame((f) => 1 - f), 280);
-    const stop = setTimeout(() => {
-      setWaving(false);
-      clearInterval(swing);
-    }, 3000);
-    return () => {
-      clearInterval(swing);
-      clearTimeout(stop);
-    };
-  }, []);
-
-  const frame = waving
-    ? waveFrame === 0
-      ? FRAME_WAVE_1
-      : FRAME_WAVE_2
-    : smiling
+  const frame = smiling
     ? FRAME_S
     : frameIdx === 0
     ? FRAME_A
