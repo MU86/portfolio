@@ -330,7 +330,8 @@ export default function Chat({
 
       {locked && (
         <div className="lock-hint">
-          chat is password-protected. don&apos;t have it?{" "}
+          chat is password-protected. you can find the password on mason&apos;s
+          resume — or{" "}
           <a href="mailto:masonum86@gmail.com">email mason</a> or{" "}
           <a
             href="https://www.linkedin.com/in/mason-u"
