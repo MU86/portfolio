@@ -17,7 +17,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.password !== PASSWORD) {
-    return NextResponse.json({ ok: false, error: "wrong password" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "wrong password, please try again" },
+      { status: 401 }
+    );
   }
 
   const res = NextResponse.json({ ok: true });
