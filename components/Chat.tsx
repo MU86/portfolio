@@ -15,10 +15,10 @@ const INITIAL_SUGGESTIONS = [
 ];
 
 const INITIAL_GREETING =
-  "hey — virtual mason here. i'm a TPM on GPU engineering ops at nvidia, currently wrangling rubin datacenter NPI. ask me about the work, the path here, or how to get in touch with real-me.";
+  "Hey — virtual Mason here. I'm a TPM on GPU Engineering Ops at NVIDIA, currently working through Rubin datacenter NPI. Feel free to ask about the work, the path that got me here, or how to get in touch with real-me.";
 
 const UNLOCK_GREETING =
-  "you're in. ask away — pick one of the suggested questions below, or type your own. i'll do my best to answer like real-me would.";
+  "You're in. Ask away — pick one of the suggested questions below, or type your own. I'll do my best to answer the way real-me would.";
 
 // Matches anything that signals "the visitor asked about college / UW life."
 // Kept tight so unrelated messages (e.g. "i went to a bootcamp") don't trigger.
