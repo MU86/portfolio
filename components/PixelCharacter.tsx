@@ -102,9 +102,11 @@ function renderFrame(frame: number[][], scale: number, key: string) {
 export default function PixelCharacter({
   scale = 10,
   smiling = false,
+  celebrating = false,
 }: {
   scale?: number;
   smiling?: boolean;
+  celebrating?: boolean;
 }) {
   const [frameIdx, setFrameIdx] = useState(0);
 
@@ -123,7 +125,9 @@ export default function PixelCharacter({
     return () => clearInterval(id);
   }, []);
 
-  const frame = smiling
+  // Force smile while celebrating.
+  const isSmiling = smiling || celebrating;
+  const frame = isSmiling
     ? FRAME_S
     : frameIdx === 0
     ? FRAME_A
@@ -134,15 +138,70 @@ export default function PixelCharacter({
   const h = 24 * scale;
 
   return (
-    <svg
-      className="pixel-char"
-      viewBox={`0 0 ${w} ${h}`}
-      width={w}
-      height={h}
-      style={{ imageRendering: "pixelated" }}
-      aria-label="Pixel avatar"
-    >
-      {renderFrame(frame, scale, `f${frameIdx}`)}
-    </svg>
+    <div className="char-stage" style={{ position: "relative", display: "inline-block" }}>
+      <svg
+        className="pixel-char"
+        viewBox={`0 0 ${w} ${h}`}
+        width={w}
+        height={h}
+        style={{ imageRendering: "pixelated" }}
+        aria-label="Pixel avatar"
+      >
+        {renderFrame(frame, scale, `f${frameIdx}`)}
+      </svg>
+
+      {celebrating && (
+        <div
+          className="uw-flag"
+          style={{
+            position: "absolute",
+            top: `${4 * scale}px`,
+            left: `${14 * scale}px`,
+            pointerEvents: "none",
+          }}
+          aria-label="University of Wisconsin-Madison flag"
+        >
+          {/* Flagpole */}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: `${0.6 * scale}px`,
+              height: `${10 * scale}px`,
+              background: "#3a3026",
+              borderRadius: "1px",
+            }}
+          />
+          {/* Flag fabric — waves via CSS */}
+          <svg
+            className="uw-flag-fabric"
+            width={9 * scale}
+            height={5.5 * scale}
+            viewBox="0 0 90 55"
+            style={{
+              position: "absolute",
+              left: `${0.6 * scale}px`,
+              top: `${0.4 * scale}px`,
+              transformOrigin: "left center",
+            }}
+          >
+            <rect x="0" y="0" width="90" height="55" fill="#c5050c" />
+            <text
+              x="45"
+              y="38"
+              fill="#ffffff"
+              fontSize="36"
+              fontWeight="900"
+              textAnchor="middle"
+              fontFamily="Georgia, 'Iowan Old Style', serif"
+              style={{ letterSpacing: "-1px" }}
+            >
+              W
+            </text>
+          </svg>
+        </div>
+      )}
+    </div>
   );
 }

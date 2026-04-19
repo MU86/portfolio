@@ -141,6 +141,23 @@ body {
   50% { transform: translateY(-6px); }
 }
 
+/* UW–Madison flag (shows when virtual-mason is celebrating college) */
+.uw-flag {
+  animation: flag-pop 0.35s ease-out;
+}
+.uw-flag-fabric {
+  animation: flag-wave 0.7s ease-in-out infinite;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+@keyframes flag-wave {
+  0%, 100% { transform: skewY(-6deg) scaleX(1); }
+  50%      { transform: skewY(6deg) scaleX(0.96); }
+}
+@keyframes flag-pop {
+  from { opacity: 0; transform: translateY(4px) scale(0.85); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .floor-shadow {
   position: absolute;
   bottom: -4px;

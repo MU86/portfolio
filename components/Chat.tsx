@@ -17,10 +17,17 @@ const INITIAL_GREETING =
 const UNLOCK_GREETING =
   "you're in. ask away — pick one of the suggested questions below, or type your own. i'll do my best to answer like real-me would.";
 
+// Matches anything that signals "the visitor asked about college / UW life."
+// Kept tight so unrelated messages (e.g. "i went to a bootcamp") don't trigger.
+const COLLEGE_RX =
+  /\b(college|university|wisconsin|madison|uw[-\s]?madison|\buw\b|undergrad|undergraduate|alma mater|campus|case comp(?:etition)?|isye|dollmeyer|scholarship|impactvc|consulting club|school)\b/i;
+
 export default function Chat({
   onAssistantReply,
+  onCollegeMention,
 }: {
   onAssistantReply?: () => void;
+  onCollegeMention?: () => void;
 } = {}) {
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_GREETING },
@@ -136,6 +143,11 @@ export default function Chat({
       // Remember chips we just showed so they don't reappear next round.
       dedupedSuggestions.forEach((s) => askedQuestionsRef.current.push(s));
       onAssistantReply?.();
+      // If the user asked about college OR the reply talks about it, signal
+      // the parent so the avatar can wave the UW flag for a moment.
+      if (COLLEGE_RX.test(text) || COLLEGE_RX.test(reply)) {
+        onCollegeMention?.();
+      }
     } catch (e: any) {
       setError(e.message || "something broke. check the console.");
     } finally {

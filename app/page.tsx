@@ -6,10 +6,17 @@ import Chat from "@/components/Chat";
 
 export default function Home() {
   const [smiling, setSmiling] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
 
   function triggerSmile() {
     setSmiling(true);
     setTimeout(() => setSmiling(false), 2200);
+  }
+
+  function triggerCollegeWave() {
+    setCelebrating(true);
+    // Long enough for the visitor to notice the flag, then back to normal.
+    setTimeout(() => setCelebrating(false), 7000);
   }
 
   return (
@@ -23,7 +30,7 @@ export default function Home() {
 
         <div className="scene">
           <div style={{ position: "relative" }}>
-            <PixelCharacter scale={10} smiling={smiling} />
+            <PixelCharacter scale={10} smiling={smiling} celebrating={celebrating} />
             <div className="floor-shadow" />
           </div>
         </div>
@@ -42,7 +49,7 @@ export default function Home() {
       </section>
 
       {/* RIGHT: chat */}
-      <Chat onAssistantReply={triggerSmile} />
+      <Chat onAssistantReply={triggerSmile} onCollegeMention={triggerCollegeWave} />
     </main>
   );
 }
