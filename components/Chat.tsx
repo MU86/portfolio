@@ -14,6 +14,9 @@ const INITIAL_SUGGESTIONS = [
 const INITIAL_GREETING =
   "hey — virtual mason here. i'm a TPM on GPU engineering ops at nvidia, currently wrangling rubin datacenter NPI. ask me about the work, the path here, or how to get in touch with real-me.";
 
+const UNLOCK_GREETING =
+  "you're in. ask away — pick one of the suggested questions below, or type your own. i'll do my best to answer like real-me would.";
+
 export default function Chat({
   onAssistantReply,
 }: {
@@ -176,6 +179,11 @@ export default function Chat({
         setPendingMessage(null);
         await send(msg);
       } else {
+        // Fresh unlock — nudge the visitor to start chatting.
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: UNLOCK_GREETING },
+        ]);
         setTimeout(() => inputRef.current?.focus(), 0);
       }
     } catch (e: any) {
