@@ -3,77 +3,73 @@
 import { useEffect, useState } from "react";
 
 /**
- * Hand-authored 16x24 pixel sprite with 2 frames (idle breathing).
- * Each frame is a grid of color indices; 0 = transparent.
- * Palette is CSS-variable friendly, so it matches the site theme.
+ * Hand-authored 16x24 pixel sprite. Formal look: button-up shirt,
+ * charcoal vest, tie, dark slacks.
  */
 
 const PALETTE: Record<number, string> = {
   0: "transparent",
-  1: "#1a1410", // outline
+  1: "#0d0c0a", // outline
   2: "#f4c7a1", // skin
   3: "#c99777", // skin shadow
   4: "#2a1f1a", // hair
   5: "#4a3428", // hair highlight
-  6: "#a8ff60", // shirt (phosphor green — matches theme)
-  7: "#6fb33d", // shirt shadow
-  8: "#3a4a5e", // pants
-  9: "#25303d", // pants shadow
-  10: "#ffb454", // accent (headphones)
-  11: "#ffffff", // eye white / glint
-  12: "#64e3ff", // glow
+  6: "#1c1b18", // vest dark
+  7: "#2a2925", // vest highlight
+  8: "#1f1d1a", // pants
+  9: "#141311", // pants shadow
+  10: "#1c1b18", // unused (kept so legacy refs stay valid)
+  11: "#f3eee5", // shirt white / eye white
+  12: "#7a2e23", // tie maroon
 };
 
-// 16 wide x 24 tall. Frame A (idle up) and Frame B (idle down, shifts by 1px).
-// Designed to read as a friendly dev-coder with headphones.
+// 16 wide x 24 tall. Frame A (idle), B (subtle breath), C (blink), S (smile).
 const FRAME_A: number[][] = [
-  // row 0-3: hair top
+  // hair (rows 0-5)
   [0,0,0,0,0,4,4,4,4,4,4,0,0,0,0,0],
   [0,0,0,0,4,4,5,5,5,5,4,4,0,0,0,0],
   [0,0,0,4,4,5,5,5,5,5,5,4,4,0,0,0],
   [0,0,4,4,5,5,5,5,5,5,5,5,4,4,0,0],
-  // row 4-5: headphone band + hair sides
-  [0,10,10,4,5,5,5,5,5,5,5,5,4,10,10,0],
-  [0,10,4,4,5,5,5,5,5,5,5,5,4,4,10,0],
-  // row 6-10: face
-  [0,10,4,2,2,2,2,2,2,2,2,2,2,4,10,0],
-  [0,10,4,2,2,11,1,2,2,1,11,2,2,4,10,0], // eyes
-  [0,10,4,2,2,11,1,2,2,1,11,2,2,4,10,0],
+  [0,0,4,4,5,5,5,5,5,5,5,5,4,4,0,0],
+  [0,0,4,4,5,5,5,5,5,5,5,5,4,4,0,0],
+  // face (rows 6-10)
+  [0,0,4,2,2,2,2,2,2,2,2,2,2,4,0,0],
+  [0,0,4,2,2,11,1,2,2,1,11,2,2,4,0,0], // eyes
+  [0,0,4,2,2,11,1,2,2,1,11,2,2,4,0,0],
   [0,0,4,2,2,2,2,2,2,2,2,2,2,4,0,0],
   [0,0,4,2,3,2,2,1,1,2,2,3,2,4,0,0], // mouth
-  // row 11: neck
+  // neck (rows 11-12)
   [0,0,0,4,2,2,2,2,2,2,2,2,4,0,0,0],
   [0,0,0,0,3,2,2,2,2,2,2,3,0,0,0,0],
-  // row 13-18: shirt
-  [0,0,6,6,6,6,6,6,6,6,6,6,6,6,0,0],
-  [0,6,6,6,7,6,6,6,6,6,6,7,6,6,6,0],
-  [0,6,6,6,6,6,6,12,12,6,6,6,6,6,6,0], // chest glow
-  [0,6,6,6,6,6,6,6,6,6,6,6,6,6,6,0],
-  [0,6,7,6,6,6,6,6,6,6,6,6,6,7,6,0],
-  [0,0,6,6,6,6,6,6,6,6,6,6,6,6,0,0],
-  // row 19-21: pants
+  // collar + vest (rows 13-18)
+  [0,0,6,6,11,11,11,11,11,11,11,11,6,6,0,0], // shoulders + white collar
+  [0,6,6,6,6,11,11,12,12,11,11,6,6,6,6,0],   // V-neck + tie knot
+  [0,6,7,6,6,6,7,12,12,7,6,6,6,7,6,0],       // vest + tie
+  [0,6,7,7,6,6,6,12,12,6,6,6,7,7,6,0],
+  [0,6,7,7,7,7,6,12,12,6,7,7,7,7,6,0],
+  [0,0,6,7,7,7,6,12,12,6,7,7,7,6,0,0],       // vest bottom
+  // pants (rows 19-21)
   [0,0,8,8,8,8,8,8,8,8,8,8,8,8,0,0],
   [0,0,8,9,8,8,8,0,0,8,8,8,9,8,0,0],
   [0,0,8,9,8,8,8,0,0,8,8,8,9,8,0,0],
-  // row 22-23: shoes
+  // shoes (rows 22-23)
   [0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0],
   [0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0],
 ];
 
-// Frame B: same body but mouth slightly different + one-pixel shirt shift = "breathing"
+// Frame B: subtle breath — mouth closed, vest shifts a touch
 const FRAME_B: number[][] = FRAME_A.map((row, y) => {
   if (y === 10) return [0,0,4,2,2,2,2,1,1,2,2,2,2,4,0,0]; // closed mouth
-  if (y === 15) return [0,6,6,6,6,6,6,6,12,12,6,6,6,6,6,0]; // chest glow shifted
   return [...row];
 });
 
 // Frame C: blink
 const FRAME_C: number[][] = FRAME_A.map((row, y) => {
-  if (y === 7 || y === 8) return [0,10,4,2,2,1,1,2,2,1,1,2,2,4,10,0];
+  if (y === 7 || y === 8) return [0,0,4,2,2,1,1,2,2,1,1,2,2,4,0,0];
   return [...row];
 });
 
-// Frame S: smile (corners up + wider open mouth on the row below)
+// Frame S: smile (corners up + open mouth on the chin row)
 const FRAME_S: number[][] = FRAME_A.map((row, y) => {
   if (y === 10) return [0,0,4,2,2,1,2,2,2,2,1,2,2,4,0,0];
   if (y === 11) return [0,0,0,4,2,2,1,1,1,1,2,2,4,0,0,0];
@@ -112,11 +108,9 @@ export default function PixelCharacter({
   const [frameIdx, setFrameIdx] = useState(0);
 
   useEffect(() => {
-    // idle loop: A (600ms) -> B (600ms) -> A -> occasional blink (C, 120ms)
     let i = 0;
     const tick = () => {
       i++;
-      // every ~8 ticks, insert a blink
       if (i % 9 === 0) {
         setFrameIdx(2);
         setTimeout(() => setFrameIdx(i % 2), 140);
