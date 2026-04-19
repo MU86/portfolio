@@ -345,6 +345,18 @@ the virtual one so i can't actually reply, but he will.
 
 const MODEL = "gemini-2.5-flash";
 
+// Gemini 2.5 Flash text pricing (USD per 1M tokens) — keep in sync with
+// https://ai.google.dev/pricing
+const PRICE_INPUT_PER_M = 0.3;
+const PRICE_OUTPUT_PER_M = 2.5;
+
+function costFor(promptTokens: number, outputTokens: number) {
+  return (
+    (promptTokens / 1_000_000) * PRICE_INPUT_PER_M +
+    (outputTokens / 1_000_000) * PRICE_OUTPUT_PER_M
+  );
+}
+
 export async function POST(req: NextRequest) {
   // Gate: only authenticated visitors can use the chat.
   const auth = req.cookies.get("site_auth")?.value;
@@ -417,6 +429,11 @@ export async function POST(req: NextRequest) {
       console.warn("[gemini] non-STOP finishReason:", finishReason);
     }
 
+    // Token + $ accounting for the main reply call.
+    const replyUsage = result.response.usageMetadata;
+    const replyPromptTokens = replyUsage?.promptTokenCount ?? 0;
+    const replyOutputTokens = replyUsage?.candidatesTokenCount ?? 0;
+
     // Generate 3 career-oriented follow-up question chips. Default to a
     // sensible career-relevant fallback set if anything goes wrong, so the
     // visitor always sees chips after a reply (unless we explicitly bail
@@ -428,6 +445,8 @@ export async function POST(req: NextRequest) {
     ];
 
     let suggestions: string[] = [];
+    let suggestPromptTokens = 0;
+    let suggestOutputTokens = 0;
     try {
       const suggestModel = genAI.getGenerativeModel({
         model: MODEL,
@@ -471,6 +490,9 @@ ${transcriptForSuggest}
 Return JSON now.`;
 
       const sugResult = await suggestModel.generateContent(suggestPrompt);
+      const sugUsage = sugResult.response.usageMetadata;
+      suggestPromptTokens = sugUsage?.promptTokenCount ?? 0;
+      suggestOutputTokens = sugUsage?.candidatesTokenCount ?? 0;
       let raw = sugResult.response.text() || "";
 
       // Strip possible markdown code fences (```json ... ```)
@@ -503,7 +525,18 @@ Return JSON now.`;
       suggestions = FALLBACK_SUGGESTIONS;
     }
 
-    return NextResponse.json({ reply, suggestions });
+    // Combined cost for this turn (main reply + suggestion call).
+    const promptTokens = replyPromptTokens + suggestPromptTokens;
+    const outputTokens = replyOutputTokens + suggestOutputTokens;
+    const usage = {
+      promptTokens,
+      outputTokens,
+      totalTokens: promptTokens + outputTokens,
+      costUsd: costFor(promptTokens, outputTokens),
+      model: MODEL,
+    };
+
+    return NextResponse.json({ reply, suggestions, usage });
   } catch (e: any) {
     console.error("[gemini] error:", e);
     return NextResponse.json(

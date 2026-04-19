@@ -4,6 +4,9 @@ import { useEffect, useRef, useState, FormEvent } from "react";
 
 type Message = { role: "user" | "assistant"; content: string };
 
+// Display label for the cost-badge tooltip.
+const MODEL_LABEL = "2.5 flash";
+
 const INITIAL_SUGGESTIONS = [
   "what do you do at nvidia?",
   "what's rubin?",
@@ -36,6 +39,10 @@ export default function Chat({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>(INITIAL_SUGGESTIONS);
+
+  // Running session cost — accumulates real Gemini token spend per turn.
+  const [costUsd, setCostUsd] = useState(0);
+  const [totalTokens, setTotalTokens] = useState(0);
 
   // Lock state — true until a successful unlock or successful chat call.
   const [locked, setLocked] = useState(true);
@@ -111,6 +118,11 @@ export default function Chat({
 
       const data = await res.json();
       const reply = (data.reply || "").toString();
+      // Roll the real Gemini token spend into the running total.
+      if (data.usage && typeof data.usage.costUsd === "number") {
+        setCostUsd((c) => c + data.usage.costUsd);
+        setTotalTokens((t) => t + (data.usage.totalTokens || 0));
+      }
       const rawSuggestions: string[] = Array.isArray(data.suggestions)
         ? data.suggestions.filter(
             (s: unknown) => typeof s === "string" && s.trim().length > 0
@@ -210,8 +222,26 @@ export default function Chat({
     send(input);
   }
 
+  // Format like $0.000123 for tiny amounts, $0.0012 once we cross fractions
+  // of a cent — keeps it readable without dropping precision early.
+  const costLabel =
+    costUsd === 0
+      ? "$0.000000"
+      : costUsd < 0.001
+      ? `$${costUsd.toFixed(6)}`
+      : costUsd < 0.1
+      ? `$${costUsd.toFixed(4)}`
+      : `$${costUsd.toFixed(3)}`;
+
   return (
     <div className="right-panel">
+      <div
+        className="cost-badge"
+        title={`gemini ${MODEL_LABEL} · ${totalTokens.toLocaleString()} tokens this session`}
+      >
+        <span className="cost-k">cost</span>
+        <span className="cost-v">{costLabel}</span>
+      </div>
       <div className="chat-log" ref={logRef}>
         {messages.map((m, i) => {
           const next = messages[i + 1];
