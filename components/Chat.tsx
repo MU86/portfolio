@@ -202,13 +202,21 @@ export default function Chat({
     <div className="right-panel">
       <div className="chat-log" ref={logRef}>
         {messages.map((m, i) => {
-          const prev = messages[i - 1];
-          const showHeader = m.role === "assistant" && prev?.role !== "assistant";
+          const next = messages[i + 1];
+          // Avatar shows on the LAST assistant message in a run — i.e., the
+          // one right before the next user message (or the most recent reply
+          // while we're waiting for the user). Hidden while the typing
+          // indicator is up so the avatar doesn't double-appear.
+          const isLastAssistantInRun =
+            m.role === "assistant" && (!next || next.role === "user");
+          const showAvatar = isLastAssistantInRun && !loading;
+          // Name label only on the very first message of the whole chat.
+          const showName = m.role === "assistant" && i === 0;
           return (
             <div key={i} className={`msg-row ${m.role}`}>
               {m.role === "assistant" && (
                 <div className="avatar-slot">
-                  {showHeader && (
+                  {showAvatar && (
                     <img
                       src="/avatar.svg"
                       alt="virtual mason"
@@ -218,7 +226,7 @@ export default function Chat({
                 </div>
               )}
               <div className={`msg ${m.role}`}>
-                {showHeader && <div className="msg-name">virtual mason</div>}
+                {showName && <div className="msg-name">virtual mason</div>}
                 <div className="msg-bubble">{m.content}</div>
               </div>
             </div>
@@ -235,7 +243,6 @@ export default function Chat({
               />
             </div>
             <div className="msg assistant">
-              <div className="msg-name">virtual mason</div>
               <div className="msg-bubble">
                 <div className="typing" aria-label="thinking">
                   <span />
