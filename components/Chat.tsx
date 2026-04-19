@@ -36,6 +36,9 @@ export default function Chat({
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  // Track every question the visitor has asked OR seen as a chip, so we
+  // can dedupe future suggestions across the whole session.
+  const askedQuestionsRef = useRef<string[]>([...INITIAL_SUGGESTIONS]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -98,14 +101,37 @@ export default function Chat({
 
       const data = await res.json();
       const reply = (data.reply || "").toString();
-      const nextSuggestions = Array.isArray(data.suggestions)
+      const rawSuggestions: string[] = Array.isArray(data.suggestions)
         ? data.suggestions.filter(
             (s: unknown) => typeof s === "string" && s.trim().length > 0
           )
         : [];
 
+      // Dedupe vs every question the visitor has already asked (or seen as
+      // a chip earlier this session) — case/punctuation insensitive.
+      const seen = new Set<string>();
+      const norm = (s: string) =>
+        s.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
+      askedQuestionsRef.current.forEach((q) => seen.add(norm(q)));
+
+      const userMessageCount =
+        messages.filter((m) => m.role === "user").length + 1; // +1 for `text`
+      const HARD_LIMIT = 5;
+      const overLimit = userMessageCount >= HARD_LIMIT;
+
+      const dedupedSuggestions = overLimit
+        ? []
+        : rawSuggestions.filter((s) => {
+            const k = norm(s);
+            if (!k || seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          });
+
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-      setSuggestions(nextSuggestions);
+      setSuggestions(dedupedSuggestions);
+      // Remember chips we just showed so they don't reappear next round.
+      dedupedSuggestions.forEach((s) => askedQuestionsRef.current.push(s));
       onAssistantReply?.();
     } catch (e: any) {
       setError(e.message || "something broke. check the console.");
@@ -121,6 +147,7 @@ export default function Chat({
 
     // Optimistically add the user message
     setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
+    askedQuestionsRef.current.push(trimmed);
     setInput("");
     await actuallySend(trimmed);
   }
