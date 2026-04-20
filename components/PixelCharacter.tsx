@@ -161,16 +161,17 @@ export default function PixelCharacter({
           }}
           aria-label="University of Wisconsin-Madison pennant"
         >
-          {/* Flagpole */}
+          {/* Flagpole — light brown so it reads against the dark bg */}
           <div
             style={{
               position: "absolute",
               left: 0,
               top: 0,
-              width: `${0.5 * scale}px`,
+              width: `${0.6 * scale}px`,
               height: `${10 * scale}px`,
-              background: "#1a1612",
+              background: "linear-gradient(90deg, #8a6a44 0%, #c59a68 50%, #8a6a44 100%)",
               borderRadius: "1px",
+              boxShadow: "0 0 0 0.5px rgba(0,0,0,0.3)",
             }}
           />
           {/* Pennant fabric — cardinal red triangle with Motion-W + WISCONSIN */}
@@ -181,7 +182,7 @@ export default function PixelCharacter({
             viewBox="0 0 130 50"
             style={{
               position: "absolute",
-              left: `${0.5 * scale}px`,
+              left: `${0.6 * scale}px`,
               top: `${0.5 * scale}px`,
               transformOrigin: "left center",
               overflow: "visible",
@@ -189,29 +190,28 @@ export default function PixelCharacter({
           >
             {/* Pennant triangle (pole side on the left, tip on the right). */}
             <polygon points="0,0 130,25 0,50" fill="#c5050c" />
-            {/* Motion-W — a thick white W, stylized with an italic slant so
-                it reads as the iconic UW motion mark at tiny sizes. */}
+            {/* Motion-W — heavy italic white W on the pole side. */}
             <text
-              x="4"
-              y="36"
+              x="5"
+              y="34"
               fill="#ffffff"
-              fontSize="36"
+              fontSize="28"
               fontWeight="900"
               fontStyle="italic"
               fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-              style={{ letterSpacing: "-2px" }}
+              style={{ letterSpacing: "-1.5px" }}
             >
               W
             </text>
-            {/* WISCONSIN wordmark beside the W. */}
+            {/* WISCONSIN wordmark — positioned clear of the W's italic overhang. */}
             <text
-              x="33"
-              y="31"
+              x="42"
+              y="30"
               fill="#ffffff"
-              fontSize="11"
+              fontSize="10"
               fontWeight="900"
               fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-              style={{ letterSpacing: "0.5px" }}
+              style={{ letterSpacing: "0.3px" }}
             >
               WISCONSIN
             </text>
