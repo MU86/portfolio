@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
         model: MODEL,
         generationConfig: {
           temperature: 0.8,
-          maxOutputTokens: 120,
+          maxOutputTokens: 180,
           responseMimeType: "application/json",
           responseSchema: {
             type: "object",
@@ -192,12 +192,12 @@ export async function POST(req: NextRequest) {
       // Only the last user Q + Mason's reply are needed to seed good chips.
       // Sending the whole transcript here was the biggest cost waste.
       const lastUserQ = latest.content;
-      const suggestPrompt = `3 short follow-up chips for a visitor chatting with virtual-Mason (TPM, NVIDIA Data Center GPU NPI). Lowercase, casual, ≤8 words each, no leading punctuation. Career-relevant only (Mason's work, NVIDIA, hardware/semis/NPI/PM, his path: UW ISyE → Microsoft intern → 4yrs GCM at NVIDIA → TPM on Rubin GPU eng ops, advice, learnings). Build on the latest reply. Do NOT suggest "what makes a great TPM" or close variants. If banned topic (politics/violence/NSFW/etc), return [].
+      const suggestPrompt = `5 DISTINCT short follow-up chips for a visitor chatting with virtual-Mason (TPM, NVIDIA Data Center GPU NPI). Each must be a different angle — don't rephrase the same question 5 ways. Lowercase, casual, ≤8 words each, no leading punctuation. Career-relevant only (Mason's work, NVIDIA, hardware/semis/NPI/PM, his path: UW ISyE → Microsoft intern → 4yrs GCM at NVIDIA → TPM on Rubin GPU eng ops, advice, learnings, college case-comp story). Build on the latest reply. Do NOT suggest "what makes a great TPM" or close variants. If banned topic (politics/violence/NSFW/etc), return [].
 
 Q: ${lastUserQ}
 A: ${reply}
 
-JSON: {"suggestions":["…","…","…"]}`;
+JSON: {"suggestions":["…","…","…","…","…"]}`;
 
       const sugResult = await suggestModel.generateContent(suggestPrompt);
       const sugUsage = sugResult.response.usageMetadata;
@@ -218,7 +218,7 @@ JSON: {"suggestions":["…","…","…"]}`;
       if (Array.isArray(parsed?.suggestions)) {
         suggestions = parsed.suggestions
           .filter((s: unknown) => typeof s === "string" && s.trim().length > 0)
-          .slice(0, 3)
+          .slice(0, 5)
           .map((s: string) => s.trim().replace(/^["'\-•\d.\s]+/, ""));
       }
     } catch (e) {

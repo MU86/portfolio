@@ -14,6 +14,29 @@ const INITIAL_SUGGESTIONS = [
   "how do i reach the real mason?",
 ];
 
+// Career-relevant questions we can top up from when the model's chips get
+// deduped down below 3. Covers a spread of topics so we're unlikely to
+// exhaust them during a 5-message session.
+const BACKUP_SUGGESTIONS = [
+  "what's a typical week look like?",
+  "what's the hardest part of the job?",
+  "what surprised you moving from supply chain to TPM?",
+  "what do people get wrong about hardware PM?",
+  "who do you work with most during bring-up?",
+  "what's fab qualification actually involve?",
+  "what tools do you use day-to-day?",
+  "what was college like at wisconsin?",
+  "what'd you do before nvidia?",
+  "any advice for breaking into hardware TPM?",
+];
+
+// Max user messages that show chips. After this many, the chat becomes
+// free-form (visitor types their own question).
+const CHIP_LIMIT = 5;
+// Target/max displayed chips per round.
+const CHIP_MIN = 3;
+const CHIP_MAX = 4;
+
 const INITIAL_GREETING =
   "Hey — virtual Mason here. I'm a TPM on GPU Engineering Ops at NVIDIA, currently working through Rubin datacenter NPI. Feel free to ask about the work, the path that got me here, or how to get in touch with real-me.";
 
@@ -138,22 +161,36 @@ export default function Chat({
 
       const userMessageCount =
         messages.filter((m) => m.role === "user").length + 1; // +1 for `text`
-      const HARD_LIMIT = 5;
-      const overLimit = userMessageCount >= HARD_LIMIT;
+      // Show chips for the first CHIP_LIMIT user messages; stop after.
+      const overLimit = userMessageCount > CHIP_LIMIT;
 
-      const dedupedSuggestions = overLimit
-        ? []
-        : rawSuggestions.filter((s) => {
+      // Step 1: dedupe model-suggested chips against everything seen.
+      let finalSuggestions: string[] = [];
+      if (!overLimit) {
+        for (const s of rawSuggestions) {
+          const k = norm(s);
+          if (!k || seen.has(k)) continue;
+          seen.add(k);
+          finalSuggestions.push(s);
+          if (finalSuggestions.length >= CHIP_MAX) break;
+        }
+        // Step 2: if we're below the minimum, backfill from the curated
+        // BACKUP_SUGGESTIONS pool so visitors reliably see 3–4 chips.
+        if (finalSuggestions.length < CHIP_MIN) {
+          for (const s of BACKUP_SUGGESTIONS) {
             const k = norm(s);
-            if (!k || seen.has(k)) return false;
+            if (!k || seen.has(k)) continue;
             seen.add(k);
-            return true;
-          });
+            finalSuggestions.push(s);
+            if (finalSuggestions.length >= CHIP_MIN) break;
+          }
+        }
+      }
 
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-      setSuggestions(dedupedSuggestions);
+      setSuggestions(finalSuggestions);
       // Remember chips we just showed so they don't reappear next round.
-      dedupedSuggestions.forEach((s) => askedQuestionsRef.current.push(s));
+      finalSuggestions.forEach((s) => askedQuestionsRef.current.push(s));
       onAssistantReply?.();
       // If the user asked about college OR the reply talks about it, signal
       // the parent so the avatar can wave the UW flag for a moment.
