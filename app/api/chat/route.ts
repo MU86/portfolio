@@ -65,6 +65,9 @@ VOICE ANCHORS (match register, don't quote):
 "University of Wisconsin–Madison, BS in Industrial and Systems Engineering with a Chinese minor. I was an ISyE Scholar and a Dollmeyer Engineering Scholar — the scholarships meant a lot. Fun stat from college: my team won every case competition hosted at Wisconsin in 2019 and 2020 — Intuit (twice), Uline, Macy's, Accenture. We also took 4th at Purdue's GSCMI competition in early 2019, which was MBA-level — our school's MBA team withdrew that year, so we ended up as the only undergrad team in the field, against 10+ MBA teams. Probably the result I'm proudest of."`;
 
 const MODEL = "gemini-2.5-flash";
+// Cheaper/faster sibling used as a last-resort fallback when the primary
+// model is returning sustained 503s / 429s.
+const FALLBACK_MODEL = "gemini-2.5-flash-lite";
 
 // Gemini 2.5 Flash text pricing (USD per 1M tokens) — keep in sync with
 // https://ai.google.dev/pricing
@@ -76,6 +79,50 @@ function costFor(promptTokens: number, outputTokens: number) {
     (promptTokens / 1_000_000) * PRICE_INPUT_PER_M +
     (outputTokens / 1_000_000) * PRICE_OUTPUT_PER_M
   );
+}
+
+// True when the error looks like a transient overload / rate-limit from
+// Gemini — 503 UNAVAILABLE, 429 RESOURCE_EXHAUSTED, 500 INTERNAL. These
+// are the only ones worth retrying; 4xx client errors are not.
+function isTransientGeminiError(e: any): boolean {
+  const status = e?.status ?? e?.response?.status;
+  if (status === 503 || status === 429 || status === 500) return true;
+  const msg = (e?.message || "").toLowerCase();
+  return (
+    msg.includes("503") ||
+    msg.includes("unavailable") ||
+    msg.includes("overloaded") ||
+    msg.includes("429") ||
+    msg.includes("rate limit") ||
+    msg.includes("resource_exhausted") ||
+    msg.includes("500 internal")
+  );
+}
+
+// Retry an async operation with exponential backoff + jitter. Only retries
+// on transient errors; surfaces other errors immediately.
+async function withRetry<T>(
+  op: () => Promise<T>,
+  label: string,
+  maxAttempts = 3
+): Promise<T> {
+  let lastErr: any;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await op();
+    } catch (e) {
+      lastErr = e;
+      if (!isTransientGeminiError(e) || attempt === maxAttempts) throw e;
+      const baseMs = 400 * Math.pow(2, attempt - 1); // 400, 800, 1600
+      const jitterMs = Math.floor(Math.random() * 250);
+      const waitMs = baseMs + jitterMs;
+      console.warn(
+        `[gemini] ${label} attempt ${attempt} transient error — retrying in ${waitMs}ms`
+      );
+      await new Promise((r) => setTimeout(r, waitMs));
+    }
+  }
+  throw lastErr;
 }
 
 export async function POST(req: NextRequest) {
@@ -134,18 +181,35 @@ export async function POST(req: NextRequest) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: MODEL,
-      systemInstruction: SYSTEM_PROMPT,
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 1024,
-        topP: 0.95,
-      },
-    });
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(latest.content);
+    // Try the primary model with retry; if it still fails transiently,
+    // fall back to a sibling model before surfacing an error to the user.
+    const sendOnModel = (modelName: string) => async () => {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: SYSTEM_PROMPT,
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 1024,
+          topP: 0.95,
+        },
+      });
+      const chat = model.startChat({ history });
+      return chat.sendMessage(latest.content);
+    };
+
+    let result;
+    let modelUsed = MODEL;
+    try {
+      result = await withRetry(sendOnModel(MODEL), "chat");
+    } catch (primaryErr) {
+      if (!isTransientGeminiError(primaryErr)) throw primaryErr;
+      console.warn(
+        `[gemini] primary model still failing after retries — falling back to ${FALLBACK_MODEL}`
+      );
+      modelUsed = FALLBACK_MODEL;
+      result = await withRetry(sendOnModel(FALLBACK_MODEL), "chat-fallback");
+    }
     const reply = result.response.text();
 
     // Surface why generation stopped — helps catch silent truncation.
@@ -199,7 +263,13 @@ A: ${reply}
 
 JSON: {"suggestions":["…","…","…","…","…"]}`;
 
-      const sugResult = await suggestModel.generateContent(suggestPrompt);
+      // Suggestion call: one quick retry on transient errors, otherwise let
+      // the outer catch fall through to the FALLBACK_SUGGESTIONS set below.
+      const sugResult = await withRetry(
+        () => suggestModel.generateContent(suggestPrompt),
+        "suggest",
+        2
+      );
       const sugUsage = sugResult.response.usageMetadata;
       suggestPromptTokens = sugUsage?.promptTokenCount ?? 0;
       suggestOutputTokens = sugUsage?.candidatesTokenCount ?? 0;
@@ -243,12 +313,25 @@ JSON: {"suggestions":["…","…","…","…","…"]}`;
       outputTokens,
       totalTokens: promptTokens + outputTokens,
       costUsd: costFor(promptTokens, outputTokens),
-      model: MODEL,
+      model: modelUsed,
     };
 
     return NextResponse.json({ reply, suggestions, usage });
   } catch (e: any) {
     console.error("[gemini] error:", e);
+    // Translate sustained transient errors into a 503 with a friendly
+    // message; the client special-cases this to show a "try again" prompt
+    // instead of a generic failure.
+    if (isTransientGeminiError(e)) {
+      return NextResponse.json(
+        {
+          error:
+            "Gemini is a bit overloaded right now. Give it a few seconds and try again.",
+          code: "UPSTREAM_UNAVAILABLE",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { error: e?.message || "gemini request failed" },
       { status: 500 }

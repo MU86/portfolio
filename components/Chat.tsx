@@ -134,6 +134,19 @@ export default function Chat({
         return;
       }
 
+      if (res.status === 503) {
+        // Upstream (Gemini) overloaded. Roll back the optimistic user
+        // message so they can just re-click send without duplicating.
+        const errBody = await res.json().catch(() => ({}));
+        setMessages((prev) => prev.slice(0, -1));
+        setInput(text);
+        setError(
+          errBody.error ||
+            "Gemini is a bit overloaded right now. Give it a few seconds and try again."
+        );
+        return;
+      }
+
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
         throw new Error(errBody.error || `server returned ${res.status}`);
