@@ -159,7 +159,7 @@ export default function PixelCharacter({
             left: `${14 * scale}px`,
             pointerEvents: "none",
           }}
-          aria-label="University of Wisconsin-Madison flag"
+          aria-label="University of Wisconsin-Madison pennant"
         >
           {/* Flagpole */}
           <div
@@ -167,37 +167,53 @@ export default function PixelCharacter({
               position: "absolute",
               left: 0,
               top: 0,
-              width: `${0.6 * scale}px`,
+              width: `${0.5 * scale}px`,
               height: `${10 * scale}px`,
-              background: "#3a3026",
+              background: "#1a1612",
               borderRadius: "1px",
             }}
           />
-          {/* Flag fabric — waves via CSS */}
+          {/* Pennant fabric — cardinal red triangle with Motion-W + WISCONSIN */}
           <svg
             className="uw-flag-fabric"
-            width={9 * scale}
-            height={5.5 * scale}
-            viewBox="0 0 90 55"
+            width={13 * scale}
+            height={5 * scale}
+            viewBox="0 0 130 50"
             style={{
               position: "absolute",
-              left: `${0.6 * scale}px`,
-              top: `${0.4 * scale}px`,
+              left: `${0.5 * scale}px`,
+              top: `${0.5 * scale}px`,
               transformOrigin: "left center",
+              overflow: "visible",
             }}
           >
-            <rect x="0" y="0" width="90" height="55" fill="#c5050c" />
+            {/* Pennant triangle (pole side on the left, tip on the right). */}
+            <polygon points="0,0 130,25 0,50" fill="#c5050c" />
+            {/* Motion-W — a thick white W, stylized with an italic slant so
+                it reads as the iconic UW motion mark at tiny sizes. */}
             <text
-              x="45"
-              y="38"
+              x="4"
+              y="36"
               fill="#ffffff"
               fontSize="36"
               fontWeight="900"
-              textAnchor="middle"
-              fontFamily="Georgia, 'Iowan Old Style', serif"
-              style={{ letterSpacing: "-1px" }}
+              fontStyle="italic"
+              fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+              style={{ letterSpacing: "-2px" }}
             >
               W
+            </text>
+            {/* WISCONSIN wordmark beside the W. */}
+            <text
+              x="33"
+              y="31"
+              fill="#ffffff"
+              fontSize="11"
+              fontWeight="900"
+              fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+              style={{ letterSpacing: "0.5px" }}
+            >
+              WISCONSIN
             </text>
           </svg>
         </div>
