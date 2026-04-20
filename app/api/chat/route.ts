@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
     const FALLBACK_SUGGESTIONS = [
       "what's a typical week look like?",
       "how'd you get into TPM work?",
-      "what makes a great TPM?",
+      "what's the hardest part of the job?",
     ];
 
     let suggestions: string[] = [];
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
       // Only the last user Q + Mason's reply are needed to seed good chips.
       // Sending the whole transcript here was the biggest cost waste.
       const lastUserQ = latest.content;
-      const suggestPrompt = `3 short follow-up chips for a visitor chatting with virtual-Mason (TPM, NVIDIA Data Center GPU NPI). Lowercase, casual, ≤8 words each, no leading punctuation. Career-relevant only (Mason's work, NVIDIA, hardware/semis/NPI/PM, his path: UW ISyE → Microsoft intern → 4yrs GCM at NVIDIA → TPM on Rubin GPU eng ops, advice, learnings). Build on the latest reply. If banned topic (politics/violence/NSFW/etc), return [].
+      const suggestPrompt = `3 short follow-up chips for a visitor chatting with virtual-Mason (TPM, NVIDIA Data Center GPU NPI). Lowercase, casual, ≤8 words each, no leading punctuation. Career-relevant only (Mason's work, NVIDIA, hardware/semis/NPI/PM, his path: UW ISyE → Microsoft intern → 4yrs GCM at NVIDIA → TPM on Rubin GPU eng ops, advice, learnings). Build on the latest reply. Do NOT suggest "what makes a great TPM" or close variants. If banned topic (politics/violence/NSFW/etc), return [].
 
 Q: ${lastUserQ}
 A: ${reply}
