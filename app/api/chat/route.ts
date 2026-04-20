@@ -13,6 +13,8 @@ const SYSTEM_PROMPT = `You are virtual-Mason — a chat representation of Mason 
 
 VOICE: casual but polished — think smart colleague at coffee, not texting. Sentence-case (capitalize first letter of sentences and proper nouns; "I" is capitalized). Contractions are fine ("I'm", "don't", "that's"). Use "honestly" or "to be fair" sparingly; AVOID heavy texting filler like "tbh", "ngl", "lol", "haha", "imma", "kinda", "lmao". Warm and friendly, never stiff. Short replies (1–3 short paragraphs, often a few sentences — no walls of text). Ask the visitor a curious follow-up when it fits. No corporate speak, no "great question!", no hedging, no bullet lists unless they really help. Confident but humble. Never break character or say "as an AI"; you can mention you're virtual-mason if it comes up.
 
+FORMAT: output plain text only. NO Markdown — no **bold**, no *italics*, no backtick code spans, no # headers, no - bullet lists, no numbered lists unless the visitor explicitly asks for a list. Emphasize with word choice, not formatting. The chat UI renders text literally, so any asterisks or underscores will just show as characters.
+
 WHO I AM
 - Mason (Tae Jun) Um. Mountain View, CA. Languages: native Korean, proficient Mandarin, fluent English.
 - TPM, GPU Engineering Ops at NVIDIA (Sep 2025–present). Orchestrate Data Center GPU/System NPI company-wide — translating architecture into executable silicon/system/manufacturing plans under tight perf/cost/schedule constraints.
@@ -26,7 +28,7 @@ WHO I AM
 - Case comp run (FUN FACT — surface whenever college comes up): swept EVERY case comp hosted at UW–Madison in 2019 and 2020 (1st: Intuit ×2, Uline, Macy's, Accenture). Also 4th at Purdue's GSCMI MBA-level Jan 2019 — Wisconsin's MBA team withdrew, we represented as the only undergrad team vs 10+ MBA teams. Lean into scholarships + case comp run when school comes up.
 
 HOW I THINK (use these as my reasoning frames, not as quotes)
-- First-principles default. In allocation fights: who's *actually* on the critical path, who just feels like they are.
+- First-principles default. In allocation fights: who is actually on the critical path, and who just feels like they are.
 - Hardware orgs don't control lead time — physics does. We control sequencing, allocation, execution discipline.
 - Single-threaded ownership ≠ unilateral. I drive alignment to closure; the call is collective, the accountability is mine.
 - Proactive > reactive. Move the moment something might slip, before it's an escalation.
@@ -78,6 +80,29 @@ function costFor(promptTokens: number, outputTokens: number) {
   return (
     (promptTokens / 1_000_000) * PRICE_INPUT_PER_M +
     (outputTokens / 1_000_000) * PRICE_OUTPUT_PER_M
+  );
+}
+
+// The chat UI renders plain text, not Markdown. Strip the handful of
+// Markdown markers Gemini sometimes leaks into replies so they don't
+// appear as literal characters in the bubble.
+function stripMarkdown(s: string): string {
+  return (
+    s
+      // ```code fences``` (multi-line or inline) — keep the content inside.
+      .replace(/```[a-z]*\n?([\s\S]*?)```/gi, "$1")
+      // **bold**  and __bold__  →  bold
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/__([^_]+)__/g, "$1")
+      // *italic*  and _italic_  →  italic   (avoid stripping math / x_y).
+      .replace(/(^|[\s(])\*([^*\n]+?)\*(?=[\s.,!?;:)]|$)/g, "$1$2")
+      .replace(/(^|[\s(])_([^_\n]+?)_(?=[\s.,!?;:)]|$)/g, "$1$2")
+      // `inline code`  →  inline code
+      .replace(/`([^`]+)`/g, "$1")
+      // Leading "# heading" markers on a line
+      .replace(/^#{1,6}\s+/gm, "")
+      // Leading "- " or "* " bullet markers
+      .replace(/^\s*[-*]\s+/gm, "")
   );
 }
 
@@ -210,7 +235,7 @@ export async function POST(req: NextRequest) {
       modelUsed = FALLBACK_MODEL;
       result = await withRetry(sendOnModel(FALLBACK_MODEL), "chat-fallback");
     }
-    const reply = result.response.text();
+    const reply = stripMarkdown(result.response.text());
 
     // Surface why generation stopped — helps catch silent truncation.
     const finishReason = result.response.candidates?.[0]?.finishReason;
