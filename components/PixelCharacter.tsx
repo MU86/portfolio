@@ -177,9 +177,9 @@ export default function PixelCharacter({
           {/* Pennant fabric — cardinal red triangle with Motion-W + WISCONSIN */}
           <svg
             className="uw-flag-fabric"
-            width={13 * scale}
+            width={15 * scale}
             height={5 * scale}
-            viewBox="0 0 130 50"
+            viewBox="0 0 150 50"
             style={{
               position: "absolute",
               left: `${0.6 * scale}px`,
@@ -189,7 +189,7 @@ export default function PixelCharacter({
             }}
           >
             {/* Pennant triangle (pole side on the left, tip on the right). */}
-            <polygon points="0,0 130,25 0,50" fill="#c5050c" />
+            <polygon points="0,0 150,25 0,50" fill="#c5050c" />
             {/* Motion-W — heavy italic white W on the pole side. */}
             <text
               x="5"
@@ -203,15 +203,16 @@ export default function PixelCharacter({
             >
               W
             </text>
-            {/* WISCONSIN wordmark — positioned clear of the W's italic overhang. */}
+            {/* WISCONSIN wordmark — clear of the W's italic overhang AND the
+                narrowing pennant tip. Sits in the widest vertical band. */}
             <text
               x="42"
-              y="30"
+              y="29"
               fill="#ffffff"
-              fontSize="10"
+              fontSize="9"
               fontWeight="900"
               fontFamily="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-              style={{ letterSpacing: "0.3px" }}
+              style={{ letterSpacing: "0px" }}
             >
               WISCONSIN
             </text>
